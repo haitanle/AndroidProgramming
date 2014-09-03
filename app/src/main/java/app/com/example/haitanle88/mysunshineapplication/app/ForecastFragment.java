@@ -35,6 +35,8 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
 
+    private ArrayAdapter<String> forecastAdapter;
+
     public ForecastFragment() {
     }
 
@@ -83,7 +85,7 @@ public class ForecastFragment extends Fragment {
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-        ArrayAdapter<String> forecastAdapter =
+         forecastAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -189,6 +191,12 @@ public class ForecastFragment extends Fragment {
         protected String[] doInBackground(String ... params) {
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
+
+            // If there's no zip code, there's nothing to look up.  Verify size of params.
+            if (params.length == 0) {
+                return null;
+            }
+
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
@@ -250,10 +258,11 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
+
+
                 Log.v(LOG_TAG, "Forecast JsonString: "+forecastJsonStr);
                 //displays the Json string in LogCat
-
-            } catch (IOException e) {
+                 } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
@@ -280,7 +289,18 @@ public class ForecastFragment extends Fragment {
             }
 
 
+
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (result != null){
+                forecastAdapter.clear();
+                for(String dayForecastStr : result){
+                    forecastAdapter.add(dayForecastStr);
+                }
+            }
         }
     }
 }
