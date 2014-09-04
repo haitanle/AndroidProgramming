@@ -1,5 +1,6 @@
 package app.com.example.haitanle88.mysunshineapplication.app;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -35,7 +37,7 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
 
-    private ArrayAdapter<String> forecastAdapter;
+    private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
     }
@@ -80,12 +82,12 @@ public class ForecastFragment extends Fragment {
                 "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
                 "Sun 6/29 - Sunny - 20/7"
         };
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
+        final List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
         // Now that we have some dummy forecast data, create an ArrayAdapter.
         // The ArrayAdapter will take data from a source (like our dummy forecast) and
         // use it to populate the ListView it's attached to.
-         forecastAdapter =
+         mForecastAdapter =
                 new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
@@ -97,7 +99,24 @@ public class ForecastFragment extends Fragment {
 
         // Get a reference to the ListView, and attach this adapter to it.
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(forecastAdapter);
+        listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                String forecast = mForecastAdapter.getItem(i).toString();
+
+                //wont be using the Toast, replace with explicit intent
+                
+//                int duration = Toast.LENGTH_SHORT;
+//                Toast toast = Toast.makeText(getActivity(), forecast, duration);
+
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
+
+            }
+        });
 
         return rootView;
     }
@@ -296,9 +315,9 @@ public class ForecastFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] result) {
             if (result != null){
-                forecastAdapter.clear();
+                mForecastAdapter.clear();
                 for(String dayForecastStr : result){
-                    forecastAdapter.add(dayForecastStr);
+                    mForecastAdapter.add(dayForecastStr);
                 }
             }
         }
